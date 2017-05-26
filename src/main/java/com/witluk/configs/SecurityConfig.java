@@ -1,6 +1,9 @@
 package com.witluk.configs;
 
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,7 +15,23 @@ import com.witluk.handlers.MyAuthenticationSuccessHandler;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
-    MyAuthenticationSuccessHandler myAuthenticationSuccessHandler;
+    private MyAuthenticationSuccessHandler myAuthenticationSuccessHandler;
+	
+	@Autowired
+	private DataSource dataSource;
+	
+	@Value("${spring.queries.users-query}")
+	private String usersQuery;
+	
+	@Value("${spring.queries.roles-query}")
+	private String rolesQuery;
+	
+	@Override
+	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		auth.jdbcAuthentication().dataSource(this.dataSource)
+			.usersByUsernameQuery(usersQuery)
+			.authoritiesByUsernameQuery(rolesQuery);
+	}
 	
 	@Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -27,15 +46,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         		.logout().permitAll()
         	.and()
         		.exceptionHandling().accessDeniedPage("/403");
-    }
-	
-	@Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-
-        auth.inMemoryAuthentication()
-                .withUser("reader").password("pass").roles("USER")
-                .and()
-                .withUser("librarian").password("pass").roles("ADMIN");
     }
 	
 }
