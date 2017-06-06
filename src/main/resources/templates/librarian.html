@@ -6,7 +6,18 @@
 </head>
 <body>
 	<h1> Hello Librarian :) </h1>
-	
+
+	<h4>Users: </h4>
+	<tr th:each="user : ${users}">
+		<td th:text="${user.name}"></td>
+		<form th:action="@{/librarian/delete/} + ${user.id_user}">
+			<input type="submit" value="Delete"/>
+		</form>
+		<br/>
+	</tr>
+
+    <h4>Books: </h4>
+
 	<form th:action="@{/logout}" method="post">
          <input type="submit" value="Sign Out"/>
      </form>
